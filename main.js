@@ -31,26 +31,29 @@
     self.Bar = function (x, y, width, height, board) {
 
         this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-		this.board = board;
-		this.board.bars.push(this);
-		this.kind = "rectangle";
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.board = board;
+        this.board.bars.push(this);
+        this.kind = "rectangle";
+        this.speed = 10;
 
     }
 
     self.Bar.prototype = {
 
         down: function () {
-
+            this.y += this.speed;
         },
 
         up: function () {
-
+            this.y -= this.speed;
+        },
+        toString: function () {
+            return "x: " + this.x + " y: " + this.y;
         }
     }
-
 
 })();
 
@@ -61,27 +64,27 @@
     self.BoardView = function (canvas, board) {
 
         this.canvas = canvas;
-		this.canvas.width = board.width;
-		this.canvas.height = board.height;
-		this.board = board;
-		this.ctx = canvas.getContext("2d");
+        this.canvas.width = board.width;
+        this.canvas.height = board.height;
+        this.board = board;
+        this.ctx = canvas.getContext("2d");
 
     }
 
     self.BoardView.prototype = {
-        draw: function(){
+        draw: function () {
 
-			for (let i = this.board.elements.length - 1; i >= 0; i--) {
-				
+            for (let i = this.board.elements.length - 1; i >= 0; i--) {
+
                 let el = this.board.elements[i];
 
-				draw(this.ctx,el);
-			};
-		}
+                draw(this.ctx, el);
+            };
+        }
     }
 
     function draw(ctx, element) {
-        if(element !==null && element.hasOwnProperty("kind")){
+        if (element !== null && element.hasOwnProperty("kind")) {
 
             switch (element.kind) {
                 case "rectangle":
@@ -90,21 +93,25 @@
             }
 
         }
-        
+
     }
 
 })();
 
-//cuando cargue la pagina, cargue la funcion principal
-window.addEventListener("Load", main());
+let board = new Board(800, 400);
+var bar = new Bar(20, 100, 40, 100, board);
+var bar = new Bar(740, 100, 40, 100, board);
+let canvas = document.getElementById('canvas');
+let boardView = new BoardView(canvas, board);
 
-//Funcion Principal:
 
-function main() {
-    let board = new Board(800, 400);
-    var bar = new Bar(20, 100, 40, 100, board);
-    var bar = new Bar(740, 100, 40, 100, board);
-    let canvas = document.getElementById('canvas');
-    let boardView = new BoardView(canvas, board);
-    boardView.draw();
-}
+document.addEventListener("keydown", function (e) {
+
+    e.keyCode == 38 ? bar.up() : e.keyCode == 40 && bar.down();
+
+    console.log(bar.toString())
+})
+
+boardView.draw();
+
+
