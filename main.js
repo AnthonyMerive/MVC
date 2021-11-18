@@ -10,13 +10,15 @@
         this.gameOver = false;
         this.bars = [];
         this.ball = null;
-
+        this.playing = false;
     }
 
     self.Board.prototype = {
 
         get elements() {
-            let elements = this.bars;
+            let elements = this.bars.map(function (bar) {
+                return bar;
+            });
             elements.push(this.ball);
             return elements;
         }
@@ -68,10 +70,19 @@
         this.radius = radius;
         this.speedY = 0;
         this.speedX = 3;
-
         this.board = board;
         board.ball = this;
         this.kind = "circle";
+        this.direction = 1;
+
+    }
+
+    self.Ball.prototype = {
+
+        move: function () {
+            this.x += (this.speedX * this.direction);
+            this.y += (this.speedY);
+        }
     }
 })();
 
@@ -103,8 +114,11 @@
             };
         },
         play: function () {
+            if(this.board.playing){
             this.clean();
             this.draw();
+            this.board.ball.move();
+            }
         }
     }
 
@@ -139,18 +153,27 @@ let ball = new Ball(350, 100, 10, board);
 let canvas = document.getElementById('canvas');
 let boardView = new BoardView(canvas, board);
 
+//Eventos de teclado:
+
 document.addEventListener("keydown", function (e) {
 
     //Barra derecha:
-    e.keyCode == 38 ?
-        bar2.up() : e.keyCode == 40 ? bar2.down()
-
+    e.keyCode == 38 ? bar2.up()
+        : e.keyCode == 40 ? bar2.down()
             //Barra izquierda:
-            : e.keyCode == 87 ? bar1.up() : e.keyCode == 83 && bar1.down()
+            : e.keyCode == 87 ? bar1.up()
+                : e.keyCode == 83 ? bar1.down()
+                    //Barra espaciadora:
+                    : e.keyCode == 32 && (board.playing = !board.playing)
 
 })
 
+boardView.draw();
+
 window.requestAnimationFrame(controller);
+// setTimeout(function () {
+//     ball.direction = -1;
+// }, 2000)
 
 function controller() {
     boardView.play();
