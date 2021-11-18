@@ -57,6 +57,24 @@
 
 })();
 
+//Ball:
+
+(function () {
+
+    self.Ball = function (x, y, radius, board) {
+
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.speedY = 0;
+        this.speedX = 3;
+
+        this.board = board;
+        board.ball = this;
+        this.kind = "circle";
+    }
+})();
+
 //BoardView:
 
 (function () {
@@ -72,6 +90,9 @@
     }
 
     self.BoardView.prototype = {
+        clean: function () {
+            this.ctx.clearRect(0, 0, board.width, board.height);
+        },
         draw: function () {
 
             for (let i = this.board.elements.length - 1; i >= 0; i--) {
@@ -80,38 +101,61 @@
 
                 draw(this.ctx, el);
             };
+        },
+        play: function () {
+            this.clean();
+            this.draw();
         }
     }
 
     function draw(ctx, element) {
-        if (element !== null && element.hasOwnProperty("kind")) {
+        // if (element !== null && element.hasOwnProperty("kind")) {
 
-            switch (element.kind) {
-                case "rectangle":
-                    ctx.fillRect(element.x, element.y, element.width, element.height);
-                    break;
-            }
+        switch (element.kind) {
+            case "rectangle":
 
+                ctx.fillRect(element.x, element.y, element.width, element.height);
+                break;
+
+            case "circle":
+
+                ctx.beginPath();
+                ctx.arc(element.x, element.y, element.radius, 0, 7);
+                ctx.fill();
+                ctx.closePath();
+                break;
         }
+
+        // }
 
     }
 
 })();
 
 let board = new Board(800, 400);
-var bar = new Bar(20, 100, 40, 100, board);
-var bar = new Bar(740, 100, 40, 100, board);
+let bar1 = new Bar(20, 100, 40, 100, board);
+let bar2 = new Bar(740, 100, 40, 100, board);
+let ball = new Ball(350, 100, 10, board);
 let canvas = document.getElementById('canvas');
 let boardView = new BoardView(canvas, board);
 
-
 document.addEventListener("keydown", function (e) {
 
-    e.keyCode == 38 ? bar.up() : e.keyCode == 40 && bar.down();
+    //Barra derecha:
+    e.keyCode == 38 ?
+        bar2.up() : e.keyCode == 40 ? bar2.down()
 
-    console.log(bar.toString())
+            //Barra izquierda:
+            : e.keyCode == 87 ? bar1.up() : e.keyCode == 83 && bar1.down()
+
 })
 
-boardView.draw();
+window.requestAnimationFrame(controller);
+
+function controller() {
+    boardView.play();
+    window.requestAnimationFrame(controller);
+}
+
 
 
